@@ -1,0 +1,17 @@
+{
+  "name": "@pastrami/pastrami-core",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Pastrami on Rye",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://B-3PO@github.com/Pastrami-components/pastrami-core.git"
+  },
+  "devDependencies": {
+    "@pastrami/pastrami-build": "0.0.8",
+    "es6-template-strings": "^2.0.1"
+  }
+}
