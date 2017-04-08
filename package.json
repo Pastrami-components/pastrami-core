@@ -1,17 +1,17 @@
 {
-  "name": "@pastrami/pastrami-core",
+  "name": "@battr/battr-core",
   "version": "0.0.0-alpha.0",
   "license": "MIT",
-  "author": "Pastrami on Rye",
+  "author": "B-3PO",
   "scripts": {
     "test": "gulp test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://B-3PO@github.com/Pastrami-components/pastrami-core.git"
+    "url": "git+https://B-3PO@github.com/battrjs/battr-core.git"
   },
   "devDependencies": {
-    "@pastrami/pastrami-build": "0.0.8",
+    "@battr/battr-build": "0.0.0-alpha.0",
     "es6-template-strings": "^2.0.1"
   }
 }
