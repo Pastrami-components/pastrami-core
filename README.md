@@ -1,2 +1,2 @@
-# pastrami-core
-mircro framework to support component set
+# battr-core
+micro framework to support component set
