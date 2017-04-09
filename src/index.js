@@ -1,7 +1,7 @@
 import './browser-extends';
 import parse from './parser';
 // import * as pipeline from './pipeline';
-// export * as component from './component';
+export * as component from './component';
 // export { pipeline };
 
 // NOTE this starts all the things
