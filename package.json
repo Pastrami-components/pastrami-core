@@ -1,6 +1,6 @@
 {
   "name": "@battr/battr-core",
-  "version": "0.0.0-alpha.3",
+  "version": "0.0.0-alpha.4",
   "license": "MIT",
   "author": "B-3PO",
   "main": "src/index.js",
