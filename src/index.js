@@ -1,11 +1,15 @@
 import './browser-extends';
-import parse from './parser';
-// import * as pipeline from './pipeline';
+import { init as initParser } from './parser';
 import * as component from './component';
-export { component };
 
 // NOTE this starts all the things
 // init that can be called for vanilla
-export function init() {
-  parse(document.body);
+function init() {
+  initParser(document.body);
 }
+
+
+export {
+  component,
+  init
+};

@@ -7,7 +7,6 @@ import {
     disable as disableComponent
   } from './component';
 import {
-    isExpression,
     compileNode,
     bind as bindExpression
   } from './expression';
@@ -20,7 +19,7 @@ import { getElementModel } from './model';
 
 var elements = [];
 
-export default function init() {
+export function init() {
   parse(document.body);
   observe();
 }

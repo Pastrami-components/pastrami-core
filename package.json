@@ -1,9 +1,9 @@
 {
   "name": "@battr/battr-core",
-  "version": "0.0.0-alpha.4",
+  "version": "0.0.0-alpha.5",
   "license": "MIT",
   "author": "B-3PO",
-  "main": "src/index.js",
+  "main": "dist/battr-core.js",
   "scripts": {
     "test": "gulp test"
   },
@@ -12,6 +12,6 @@
     "url": "git+https://B-3PO@github.com/battrjs/battr-core.git"
   },
   "devDependencies": {
-    "@battr/battr-build": "0.0.1-alpha.2"
+    "@battr/battr-build": "0.0.1-alpha.4"
   }
 }
