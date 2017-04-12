@@ -165,7 +165,7 @@ export function compileElement(component, originalNode, parentingElement, rootNo
 
     var nodes = [].concat(node);
     nodes.forEach(function (sub) {
-      // sub.classList.remove('mc-cloak');
+      // sub.classList.remove('cloak');
       // if selector is the node name then add it as a classname
       if (component.selector === sub.nodeName.toLowerCase()) {
         sub.classList.add(node.nodeName.toLowerCase());
@@ -278,23 +278,23 @@ function transfer(options, node, template) {
  * Transpose HTML
  * you can transpose multiple
  * ```html
- * <mc-button>Button</mc-button>
- * <mc-button>
- *   <mc-transpose>Button</mc-transpose>
- * </mc-button>
- * <mc-button>
- *   <mc-transpose name="one">Button one</mc-transpose>
+ * <br-button>Button</br-button>
+ * <br-button>
+ *   <transpose>Button</transpose>
+ * </br-button>
+ * <br-button>
+ *   <transpose name="one">Button one</transpose>
  *   <span></span>
- *   <mc-transpose name="two">Button two</mc-transpose>
- * </mc-button>
+ *   <transpose name="two">Button two</transpose>
+ * </br-button>
  * ```
  */
 function transpose(node, templateElement) {
   var child;
-  var componentTransposes = Array.prototype.slice.call(node.querySelectorAll('mc-transpose'));
-  var templateTransposes = Array.prototype.slice.call(templateElement.querySelectorAll('mc-transpose'));
+  var componentTransposes = Array.prototype.slice.call(node.querySelectorAll('transpose'));
+  var templateTransposes = Array.prototype.slice.call(templateElement.querySelectorAll('transpose'));
   if (!componentTransposes.length) {
-    templateTransposes = templateElement.querySelector('mc-transpose');
+    templateTransposes = templateElement.querySelector('transpose');
     if (templateTransposes) {
       while (child = node.firstChild) {
         templateTransposes.parentNode.insertBefore(child, templateTransposes);
@@ -303,7 +303,7 @@ function transpose(node, templateElement) {
     }
   } else {
     componentTransposes.forEach(function (item) {
-      var r = templateElement.querySelector('mc-transpose, [name="'+item.getAttribute('name')+'"]');
+      var r = templateElement.querySelector('transpose, [name="'+item.getAttribute('name')+'"]');
       if (r) {
         while (child = node.firstChild) {
           r.parentNode.insertBefore(child, r);
