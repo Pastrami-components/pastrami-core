@@ -1,0 +1,13 @@
+@import '../component-themes';
+
+// Include non-theme styles for core.
+// @include br-core();
+
+// Define a theme.
+$primary: br-palette($br-indigo);
+$accent:  br-palette($br-pink, A200, A100, A400);
+
+$theme: br-light-theme($primary, $accent);
+
+// Include all theme styles for the components.
+@include material-theme($theme);
