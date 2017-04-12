@@ -1,6 +1,0 @@
-// load in all the component theme scss iles here
-@import '../../components/button/style/button-theme';
-
-@mixin material-theme($theme) {
-  @include br-button-theme($theme);
-};
