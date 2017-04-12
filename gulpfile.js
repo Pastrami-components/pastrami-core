@@ -1,4 +1,7 @@
 var gulp = require('gulp');
-var battrTasks = require('@battr/battr-build');
-gulp.task('build:debug:js', battrTasks.build.js.debug());
-gulp.task('build:release:js', battrTasks.build.js.release());
+require('@battr/battr-build/lib/default-config').names = {
+  file: 'battr-core',
+  module: 'battrCore',
+  styles: 'battr-core'
+};
+require('@battr/battr-build');
