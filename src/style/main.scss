@@ -1,0 +1,33 @@
+@import 'variables';
+
+html, body {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  // this is only supported in safari
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-touch-callout
+  -webkit-touch-callout: none;
+
+  min-height: 100%;
+
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+select,
+html,
+textarea,
+input {
+  font-family: $br-global-font-family;
+  font-size: $br-global-font-size;
+}
+
+.br-cloak {
+  display: none;
+}
+
+.br-hide {
+  display: none;
+}
