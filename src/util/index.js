@@ -1,5 +1,5 @@
 export { equal } from './equals';
-export { clone } from './clone';
+export { clone, extend, merge } from './clone';
 export function nextTock(fn) {
   setTimeout(fn, 0);
 }

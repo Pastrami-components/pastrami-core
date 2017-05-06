@@ -1,8 +1,8 @@
 import { NODE_TYPES } from '../constants';
 import { getElementUid } from '../util';
 import buildAttrs from './attributes';
-// import * as pipeline from '../pipeline';
 import ComponentHelper from './components-helper';
+import { inject } from '../injector';
 import {
   register
 } from './registry';
@@ -27,6 +27,7 @@ export function define(options) {
       attrs: options.attrs,
       compile: options.compile,
       controller: options.controller,
+      postBind: options.postBind,
       // default model to false if no controller, default it to true if there is a controller
       model: options.model === false || (!options.controller && options.model !== true) ? false : true,
       priority: options.priority || 0,
@@ -49,20 +50,23 @@ export function bindElement(element, parentingElement, rootNode) {
 export function bindAttribute(attr, element, parentingElement, rootNode) {
   var component = find(attr);
   if (!component) { return; }
-  var uid = getElementUid(element);
+  var uid = getElementUid(attr);
   attr.uid = uid;
   return compileAttribute(attr, element, component, parentingElement, rootNode);
 }
 
 export function compileAttribute(attr, element, component, parentingElement, rootNode) {
-  if (element && !element.uid) { return; }
+  if (attr && !attr.uid) { return; }
   var selector = formatSelector(attr);
   if (elements[attr.uid] && elements[attr.uid][selector]) { return elements[attr.uid][selector].compiler; }
   if (!component) { return; }
-  var uid = element.uid;
+  var uid = attr.uid;
   elements[uid] = elements[uid] || {};
   if (component.compile) {
-    component.compile(element);
+    inject(component.compile, {
+      attr: attr,
+      element: element
+    })();
   }
 
   elements[uid][selector] = {};
@@ -79,8 +83,10 @@ export function compileAttribute(attr, element, component, parentingElement, roo
     else if (parentModel) { model = parentModel.$$copy(); }
     else { model = CreateModel(); }
     bindModelToElement(element, model);
+    var attrs = buildAttrs(component.attrs, element);
+    var helper = ComponentHelper(elements, uid, selector);
     if (component.controller) {
-      elements[uid][selector].controller = bindController(element, component.controller, { model: model, element: element, attrs: buildAttrs(component.attrs, element)})();
+      elements[uid][selector].controller = bindController(attr, component.controller, { model: model, element: element, attrs: attrs, helper: helper})();
     }
 
     elements[uid][selector].uid = uid;
@@ -88,6 +94,17 @@ export function compileAttribute(attr, element, component, parentingElement, roo
     elements[uid][selector].model = model;
     elements[uid][selector].attr = attr;
     elements[uid][selector].compiled = true;
+
+    if (component.postBind) {
+      inject(component.postBind, {
+        element: element,
+        attr: attr,
+        model: model,
+        attrs: attrs,
+        ctrl: findController(node),
+        helper: helper
+      })();
+    }
   };
   elements[uid][selector].compiler.priority = component.priority || 0;
   elements[uid][selector].compiler.$element = element;
@@ -114,7 +131,9 @@ export function compileElement(component, originalNode, parentingElement, rootNo
   originalNode.originalNode = true;
   node = frag;
   if (component.compile) {
-    component.compile(originalNode);
+    inject(component.compile, {
+      element: originalNode
+    })();
   }
 
   elements[uid][selector] = {};
@@ -172,17 +191,27 @@ export function compileElement(component, originalNode, parentingElement, rootNo
       }
     });
 
+    var attrs = buildAttrs(component.attrs, node);
+    var helper = ComponentHelper(elements, uid, selector);
     if (component.controller) {
-      var attrs = buildAttrs(component.attrs, node);
-      elements[uid][selector].controller = bindController(node, component.controller, { model: model, element: node, attrs: attrs, helper: ComponentHelper(elements, uid, selector)})();
+      elements[uid][selector].controller = bindController(node, component.controller, { model: model, element: node, attrs: attrs, helper: helper})();
       elements[uid][selector].attrs = attrs;
     }
-
     elements[uid][selector].uid = uid;
     elements[uid][selector].element = node;
     elements[uid][selector].model = model;
     elements[uid][selector].compiled = true;
     register(node, elements[uid][selector]);
+
+    if (component.postBind) {
+      inject(component.postBind, {
+        element: node,
+        model: model,
+        attrs: attrs,
+        ctrl: findController(node),
+        helper: helper
+      })();
+    }
 
 
     // parse if template used.

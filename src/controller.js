@@ -1,4 +1,5 @@
 import { getElementUid } from './util';
+import { inject as injectCtrl } from './injector';
 import {
     Create as CreateModel,
     bindModelToElement
@@ -60,7 +61,13 @@ export function compile(element, ctrl, inject) {
 
 export function findController(node) {
   if (!node) { return; }
-  return elements[node.uid];
+  var controller = elements[node.uid];
+  var parent = node.parentNode;
+  while (controller === undefined && parent && parent !== document.documentElement) {
+    controller = elements[parent.uid];
+    parent = parent.parentNode;
+  }
+  return controller;
 }
 
 // if a string is passed in this will lookup the controller function and return it
@@ -72,28 +79,4 @@ function find(ctrl) {
     return;
   }
   return controllers[ctrl];
-}
-
-// make inectables available as function arguments
-function injectCtrl(func, inject) {
-  var args = [];
-  var deps;
-  // convert array to deps and func. asosume func is last item in array
-  if (func instanceof Array) {
-    deps = func;
-    func = deps.pop();
-  } else {
-    // parse function as string into deps arr
-    deps = func.toString().match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1].replace(/ /g, '').split(',');
-  }
-
-  // return functional that will applay an arrya or args from the inject obj, based on the strings int deps arr
-  return function () {
-    var arr = Array.prototype.slice.call(arguments, 0);
-    deps.forEach(function (item, pos) {
-      if (func.$inject) { args.push(func.$inject[pos]); }
-      else { args.push(inject[item]); }
-    });
-    func.apply(this, args);
-  };
 }

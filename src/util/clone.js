@@ -53,49 +53,49 @@ export function clone(src, checkForCircular) {
 }
 
 
-// export function extend(dest, ...srcs) {
-//   srcs.forEach(function (src) {
-//     baseMerge(dest, src, false);
-//   });
-//   return dest;
-// }
-//
-// export function merge(dest, ...srcs) {
-//   srcs.forEach(function (src) {
-//     baseMerge(dest, src, true);
-//   });
-//   return dest;
-// }
-//
-// function baseMerge(dest, src, deep) {
-//   if (dest === src) { return; }
-//
-//   var srcValue;
-//   var keys = getKeys(src);
-//   var key = keys.pop();
-//   while (key !== undefined) {
-//     srcValue = src[key];
-//
-//     if (deep && isObject(srcValue)) {
-//       if (isDate(srcValue)) {
-//         dest[key] = new Date(src.getTime());
-//       } else if (isRegExp(src)) {
-//         dest[key] = new RegExp(srcValue);
-//       } else if (src.nodeName) {
-//         dest[key] = src.cloneNode(true);
-//       } else {
-//         if (!isObject(dest[key])) { dest[key] = isArray(src) ? [] : {}; }
-//         merge(dest[key], srcValue, deep);
-//       }
-//     } else {
-//       dest[key] = srcValue;
-//     }
-//
-//     key = keys.pop();
-//   }
-//
-//   return dest;
-// }
+export function extend(dest, ...srcs) {
+  srcs.forEach(function (src) {
+    baseMerge(dest, src, false);
+  });
+  return dest;
+}
+
+export function merge(dest, ...srcs) {
+  srcs.forEach(function (src) {
+    baseMerge(dest, src, true);
+  });
+  return dest;
+}
+
+function baseMerge(dest, src, deep) {
+  if (dest === src) { return; }
+
+  var srcValue;
+  var keys = getKeys(src);
+  var key = keys.pop();
+  while (key !== undefined) {
+    srcValue = src[key];
+
+    if (deep && isObject(srcValue)) {
+      if (isDate(srcValue)) {
+        dest[key] = new Date(src.getTime());
+      } else if (isRegExp(src)) {
+        dest[key] = new RegExp(srcValue);
+      } else if (src.nodeName) {
+        dest[key] = src.cloneNode(true);
+      } else {
+        if (!isObject(dest[key])) { dest[key] = isArray(src) ? [] : {}; }
+        merge(dest[key], srcValue, deep);
+      }
+    } else {
+      dest[key] = srcValue;
+    }
+
+    key = keys.pop();
+  }
+
+  return dest;
+}
 
 
 

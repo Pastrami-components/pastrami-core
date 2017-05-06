@@ -8,6 +8,7 @@ import {
   } from './component';
 import {
     compileNode,
+    bindAttribute as bindAttributeExpression,
     bind as bindExpression
   } from './expression';
 import {
@@ -68,8 +69,8 @@ function parseElement(node, depth, parentingElement, rootNode) {
   var attrs = Array.prototype.slice.call(node.attributes || []);
   while (attr = attrs.pop()) {
     if (attr.name === 'controller') { continue; }
+    register(attr, depth, bindAttributeExpression(attr, node, rootNode));
     if (!compileNode(attr, node)) { register(node, depth, bindExpression(attr, node, rootNode)); }
-
     if (compileAttribute(attr, node)) { continue; }
     register(node, depth, bindAttribute(attr, node, parentingElement, rootNode));
   }

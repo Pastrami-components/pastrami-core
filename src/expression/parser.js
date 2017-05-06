@@ -38,6 +38,14 @@ export function bind(node, bindingNode, rootNode) {
   return elements[uid];
 }
 
+export function bindAttribute(attr, bindingNode, rootNode) {
+  if (!attr || !isExpression(attr.value)) { return; }
+  var uid = getElementUid(attr);
+  if (bindingNode) { attr.elementUID = getElementUid(bindingNode); }
+  elements[uid] = compileAttribute(attr, bindingNode, rootNode);
+  return elements[uid];
+}
+
 export function compileNode(node, bindingNode, rootNode) {
   if (!node.uid) { return; }
   if (elements[node.uid]) { return elements[node.uid]; }
@@ -50,6 +58,7 @@ export function compileNode(node, bindingNode, rootNode) {
     var model = getElementModel(bindingNode || node.parentNode);
     if (!model) { return; }
     destroyer = model.$observe(function () {
+      if (node.$$doNotParse) { return; }
       // kill observer if node no longer exists
       if (!node) {
         destroy();
@@ -59,6 +68,43 @@ export function compileNode(node, bindingNode, rootNode) {
         node.textContent = resolveToString(compiledText, model.$$squash());
       } catch (e) {
         console.error('failed to parse', node, model);
+      }
+    }, true);
+  };
+  createObserver.priority = 1000;
+  createObserver.destroy = destroy;
+  return createObserver;
+
+  function destroy() {
+    if (typeof destroyer === 'function') {
+      destroyer();
+      destroyer = undefined;
+    }
+  }
+}
+
+export function compileAttribute(attr, bindingNode, rootNode) {
+  if (!attr.uid) { return; }
+  if (elements[attr.uid]) { return elements[attr.uid]; }
+  var destroyer;
+  var compiledText = tsCompile(attr.value);
+  var createObserver = function () {
+    rootNode = rootNode || document.body;
+    if (!rootNode.contains(bindingNode) && bindingNode.hasAttribute(attr.nodeName)) { return; }
+    if (destroyer) { return; } // prevent from running ore than once
+    var model = getElementModel(bindingNode);
+    if (!model) { return; }
+    destroyer = model.$observe(function () {
+      if (attr.$$doNotParse || bindingNode.$$doNotParse) { return; }
+      // kill observer if node no longer exists
+      if (!attr) {
+        destroy();
+        return;
+      }
+      try {
+        attr.value = resolveToString(compiledText, model.$$squash());
+      } catch (e) {
+        console.error('failed to parse', attr, model);
       }
     }, true);
   };
