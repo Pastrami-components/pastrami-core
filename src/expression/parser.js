@@ -69,7 +69,7 @@ export function compileNode(node, bindingNode, rootNode) {
       } catch (e) {
         console.error('failed to parse', node, model);
       }
-    }, true);
+    });
   };
   createObserver.priority = 1000;
   createObserver.destroy = destroy;
@@ -106,7 +106,7 @@ export function compileAttribute(attr, bindingNode, rootNode) {
       } catch (e) {
         console.error('failed to parse', attr, model);
       }
-    }, true);
+    });
   };
   createObserver.priority = 1000;
   createObserver.destroy = destroy;

@@ -8,10 +8,12 @@ export function bindModelToElement(element, model) {
   // find parent model
   everyParent(element, function (parent) {
     if (elements[parent.uid]) {
-      Object.defineProperty(model, '$parent', {
-        value: elements[parent.uid],
-        enumerable: false
-      });
+      if (!('$parent' in model)) {
+        Object.defineProperty(model, '$parent', {
+          value: elements[parent.uid],
+          enumerable: false
+        });
+      }
       return false;
     }
     return true;
@@ -32,195 +34,182 @@ export function getElementModel(element) {
 
 
 export function Create() {
-  var leaves = [];
+  var uid = 0;
+  var siblings = [];
   var internal = {};
-  return copy();
+  return replicate();
 
-  function copy() {
-    var par = parasite({
+  function replicate() {
+    var parasite = Parasite({
+      id: uid++,
+      siblings: siblings,
       internal: internal,
-      leaves: leaves,
-      copy: copy
+      observers: {},
+      replicate: replicate
     });
-    Object.keys(internal).forEach(function (key) {
-      Object.defineProperty(par, key, Object.getOwnPropertyDescriptor(leaves[0], key));
-    });
-    leaves.push(par);
-    return par;
+    siblings.push(parasite);
+    return parasite;
   }
 }
 
-function parasite(root) {
-  var self = Object.defineProperties({}, {
-    '$assign': {
-      value: assign,
-      enumerable: false,
-      configurable: false,
-      writable: false
-    },
-    '$$copy': {
-      value: root.copy,
-      enumerable: false,
-      configurable: false,
-      writable: false
-    },
-    '$$disable': {
-      value: disable,
-      enumerable: false,
-      configurable: false,
-      writable: false
-    },
-    '$$disabled': {
-      value: false,
-      enumerable: false,
-      configurable: false,
-      writable: true
-    },
-    '$$forceEnable': {
-      value: false,
-      enumerable: false,
-      configurable: false,
-      writable: true
-    },
-    '$$enable': {
-      value: enable,
-      enumerable: false,
-      configurable: false,
-      writable: false
+export function Parasite(config) {
+  var disabled = false;
+  var self = new Proxy(config.internal, {
+    get: get,
+    set: set,
+    deleteProperty: deleteProperty
+  });
+  var core = Object.defineProperties({}, {
+    '$$id': {
+      value: config.id,
+      enumerable: false, configurable: false, writable: false
     },
     '$observe': {
       value: observe,
-      enumerable: false,
-      configurable: false,
-      writable: false
+      enumerable: false, configurable: false, writable: false
     },
-    '$observers': {
-      value: {_global: []},
-      enumerable: false,
-      configurable: false,
-      writable: true
+    '$isDisabled': {
+      value: isDisabled,
+      enumerable: false, configurable: false, writable: false
     },
-    '$$destroy': {
-      value: destroy,
-      enumerable: false,
-      configurable: false,
-      writable: false
+    '$$disable': {
+      value: disable,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$enable': {
+      value: enable,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$forceEnable': {
+      value: false,
+      enumerable: false, configurable: false, writable: true
     },
     '$$squash': {
       value: squash,
-      enumerable: false,
-      configurable: false,
-      writable: false
+      enumerable: false, configurable: false, writable: false
     },
     '$$trigger': {
       value: trigger,
-      enumerable: false,
-      configurable: false,
-      writable: false
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$destroy': {
+      value: destroy,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$observers': {
+      value: config.observers,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$replicate': {
+      value: config.replicate,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$self': {
+      value: self,
+      enumerable: false, configurable: false, writable: false
     }
   });
   return self;
 
-  function assign(name, value) {
-    if (!root.leaves[0].hasOwnProperty(name)) {
-      root.leaves.forEach(function (leaf) {
-        Object.defineProperty(leaf, name, {
-          get: function () {
-            return root.internal[name];
-          },
-          set: function () {
-            throw Error('Cannot set model property. Use `model.$assign(name: string, value: any)`');
-          },
-          enumerable: true,
-          configurable: false
-        });
-      });
+  function get(target, property) {
+    if (property.charAt(0) === '$') {
+      return core[property];
+    }
+    return target[property];
+  }
+
+  function set(target, property, value) {
+    if (property.charAt(0) === '$') {
+      if (property in core) {
+        core[property] = value;
+        return true;
+      }
+      throw Error('Illegal first charater `$` on model property')
+    }
+    target[property] = value;
+    trigger(property, value);
+    return true;
+  }
+
+  function deleteProperty(target, property) {
+    if (property in target) { delete target[property]; }
+  }
+
+  function observe(property) {
+    var parent;
+    var fn = arguments[arguments.length-1];
+    if (typeof fn !== 'function') {
+      throw Error('callback function required as last paramater')
+    }
+    property = property && typeof property !== 'function' ? property : '$$global';
+    config.observers[property] = config.observers[property] || [];
+    config.observers[property].push(fn);
+    if (property === '$$global') {
+      parent = core.$parent;
+      while (parent) {
+        parent.$observe(fn);
+        parent = parent.$parent;
+      }
+      fn();
+    } else {
+      fn(self[property]);
     }
 
-    root.internal[name] = value;
-    trigger(name, value);
-  }
-
-  function disable() {
-    self.$$disabled = true;
-  }
-
-  function enable() {
-    self.$$disabled = false;
-  }
-
-  function trigger(name, value) {
-    root.leaves.forEach(function (leaf) {
-      if (leaf.$$disabled && leaf.$$forceEnable !== true) { return; }
-      if (leaf.$observers[name]) {
-        leaf.$observers[name].forEach(function (func) {
-          func(value);
-        });
+    return function unobserve() {
+      if (property === '$$global') {
+        parent = core.$parent;
+        while (parent) {
+          parent.$$observers[property] = (parent.$$observers[property] || []).filter(function (item) {
+            return item !== fn;
+          });
+          parent = parent.$parent;
+        }
+        fn();
       }
+      config.observers[property] = config.observers[property].filter(function (item) {
+        return item !== fn;
+      });
+    };
+  }
 
-      leaf.$observers._global.forEach(function (func) {
-        func();
+  function trigger(property, value) {
+    config.siblings.forEach(function (sibling) {
+      if (sibling.$isDisabled() && sibling.$$forceEnable !== true) { return; }
+      (sibling.$$observers[property] || []).forEach(function (fn) {
+        fn(value);
+      });
+      (sibling.$$observers['$$global'] || []).forEach(function (fn) {
+        fn();
       });
     });
   }
 
-  // observe a property. This will invoke a given funtion with the porperty value
-  // return a function that will remove the created observer
-  function observe(name, func, deep) {
-    // TODO validate
-    // global listner
-    if (typeof name === 'function') {
-      var parent;
-      if (func === true) {
-        parent = this.$parent;
-        while (parent) {
-          parent.$observe(name, true);
-          parent = parent.$parent;
-        }
-      }
-      self.$observers._global.push(name);
-      name();
-      return function () {
-        if (func === true) {
-          parent = this.$parent;
-          while (parent) {
-            parent.$observers._global = parent.$observers._global.filter(function (item) {
-              return item !== name;
-            });
-            parent = parent.$parent;
-          }
-        }
-        self.$observers._global = self.$observers._global.filter(function (item) {
-          return item !== name;
-        });
-      }
-    }
-
-    // Property listener
-    self.$observers[name] = self.$observers[name] || [];
-    self.$observers[name].push(func);
-    if (root.internal.hasOwnProperty(name)) { func(root.internal[name]); }
-    return function () {
-      self.$observers[name] = self.$observers[name].filter(function (item) {
-        return item !== func;
-      });
-    }
-  }
-
-  function destroy() {
-    self.$observers = {};
-    root.leaves.splice(root.leaves.indexOf(self), 1);
-  }
-
   function squash() {
-    var parent = this;
+    var parent = core;
     var obj = {};
     while (parent) {
-      Object.keys(parent).forEach(function (key) {
-        if (!obj[key]) { obj[key] = parent[key]; }
+      Object.keys(parent.$$self).forEach(function (key) {
+        if (!obj[key]) { obj[key] = parent.$$self[key]; }
       });
       parent = parent.$parent;
     }
     return obj;
+  }
+
+  function destroy() {
+    config.observers = {};
+    config.siblings.splice(config.siblings.indexOf(self), 1);
+  }
+
+  function disable() {
+    disabled = true;
+  }
+
+  function enable() {
+    disabled = false;
+  }
+
+  function isDisabled() {
+    return disabled;
   }
 }

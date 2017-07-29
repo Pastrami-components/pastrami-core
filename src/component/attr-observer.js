@@ -1,41 +1,17 @@
 var observer;
 var elements = {};
 
-export default function (attrs, element) {
-  var uid = element.uid;
-  var observers = {};
+export default function CreateObserver(element) {
   var internal = {};
+  var observers = {};
   var self = Object.defineProperties({}, {
-    getAttribute: {
-      value: function (value) {
-        return element.getAttribute(value);
-      },
-      enumerable: false,
-      configurable: false,
-      writable: false,
-    },
-
-    setAttribute: {
-      value: function (value) {
-        return element.setAttribute(value);
-      },
-      enumerable: false,
-      configurable: false,
-      writable: false,
-    },
-
-    '$observe': {
+    observe: {
       value: observe,
-      enumerable: false,
-      configurable: false,
-      writable: false
+      enumerable: false, configurable: false, writable: false
     },
-
     '$$destroy': {
       value: destroy,
-      enumerable: false,
-      configurable: false,
-      writable: false
+      enumerable: false, configurable: false, writable: false
     }
   });
   observeElement(element, function (attrName) {
@@ -47,7 +23,6 @@ export default function (attrs, element) {
     }
   });
   return self;
-
 
   function observe(name, func) {
     observers[name] = observers[name] || [];

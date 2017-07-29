@@ -1,7 +1,7 @@
 import { NODE_TYPES } from '../constants';
 import { getElementUid } from '../util';
-import buildAttrs from './attributes';
-import ComponentHelper from './components-helper';
+import AttrsObserver from './attr-observer';
+import ComponentFinder from './components-finder';
 import { inject } from '../injector';
 import {
   register
@@ -23,7 +23,7 @@ var elements = {};
 export function define(options) {
   validateOptions(options);
   options.selector.split(',').forEach(function (sel) {
-    components[sel] = {
+    components[sel.trim()] = {
       attrs: options.attrs,
       compile: options.compile,
       controller: options.controller,
@@ -80,13 +80,13 @@ export function compileAttribute(attr, element, component, parentingElement, roo
     var model;
     var parentModel = getElementModel(parentingElement);
     if (component.model) { model = CreateModel(); }
-    else if (parentModel) { model = parentModel.$$copy(); }
+    else if (parentModel) { model = parentModel.$$replicate(); }
     else { model = CreateModel(); }
     bindModelToElement(element, model);
-    var attrs = buildAttrs(component.attrs, element);
-    var helper = ComponentHelper(elements, uid, selector);
+    var attrsObserver = AttrsObserver(element);
+    var finder = ComponentFinder(elements, uid, selector);
     if (component.controller) {
-      elements[uid][selector].controller = bindController(attr, component.controller, { model: model, element: element, attrs: attrs, helper: helper})();
+      elements[uid][selector].controller = bindController(attr, component.controller, { model: model, element: element, observeAttr: attrsObserver.observe, find: finder})();
     }
 
     elements[uid][selector].uid = uid;
@@ -100,9 +100,9 @@ export function compileAttribute(attr, element, component, parentingElement, roo
         element: element,
         attr: attr,
         model: model,
-        attrs: attrs,
-        ctrl: findController(node),
-        helper: helper
+        attrsObserver: attrsObserver,
+        ctrl: findController(element),
+        find: finder
       })();
     }
   };
@@ -148,7 +148,7 @@ export function compileElement(component, originalNode, parentingElement, rootNo
     var model;
     var parentModel = getElementModel(parentingElement);
     if (component.model) { model = CreateModel(); }
-    else if (parentModel) { model = parentModel.$$copy(); }
+    else if (parentModel) { model = parentModel.$$replicate(); }
     else { model = CreateModel(); }
     bindModelToElement(originalNode, model);
 
@@ -191,11 +191,11 @@ export function compileElement(component, originalNode, parentingElement, rootNo
       }
     });
 
-    var attrs = buildAttrs(component.attrs, node);
-    var helper = ComponentHelper(elements, uid, selector);
+    var attrsObserver = AttrsObserver(node);
+    var finder = ComponentFinder(elements, uid, selector);
     if (component.controller) {
-      elements[uid][selector].controller = bindController(node, component.controller, { model: model, element: node, attrs: attrs, helper: helper})();
-      elements[uid][selector].attrs = attrs;
+      elements[uid][selector].controller = bindController(node, component.controller, { model: model, element: node, observeAttr: attrsObserver.observe, find: finder})();
+      elements[uid][selector].attrs = attrsObserver;
     }
     elements[uid][selector].uid = uid;
     elements[uid][selector].element = node;
@@ -207,9 +207,9 @@ export function compileElement(component, originalNode, parentingElement, rootNo
       inject(component.postBind, {
         element: node,
         model: model,
-        attrs: attrs,
+        attrsObserver: attrsObserver,
         ctrl: findController(node),
-        helper: helper
+        find: finder
       })();
     }
 

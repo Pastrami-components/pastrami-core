@@ -3,9 +3,9 @@ import { inject } from '../injector';
 
 export default function Constructor(elements, elementUid, elementSelector) {
   return {
-    findParent: findParent,
-    findChild: findChild,
-    findSibling: findSibling
+    parent: findParent,
+    child: findChild,
+    sibling: findSibling
   };
 
 
