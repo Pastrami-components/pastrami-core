@@ -19,10 +19,16 @@ import {
 
 var components = {};
 var elements = {};
+var selectorTree = {};
 
 export function define(options) {
   validateOptions(options);
   options.selector.split(',').forEach(function (sel) {
+    var lastObj = sel.trim().split(/(?=\.)|(?=#)|(?=\[)/).reduce(function (a, b) {
+      a[b] = a[b] || {};
+      return a[b];
+    }, selectorTree);
+
     components[sel.trim()] = {
       attrs: options.attrs,
       compile: options.compile,
@@ -33,10 +39,12 @@ export function define(options) {
       priority: options.priority || 0,
       replace: options.replace,
       select: function (_sel) { return sel === _sel; },
-      selector: sel,
+      selector: sel.trim(),
+      selectors: sel.trim().split(/(?=\.)|(?=#)|(?=\[)/),
       template: options.template,
       transfer: options.transfer
     };
+    lastObj._component = components[sel.trim()];
   });
 }
 
@@ -226,8 +234,47 @@ export function compileElement(component, originalNode, parentingElement, rootNo
   return elements[uid][selector].compiler;
 }
 
+if (!Element.prototype.matchesSelector) {
+    Element.prototype.matchesSelector =
+        Element.prototype.matchesSelector ||
+        Element.prototype.mozMatchesSelector ||
+        Element.prototype.msMatchesSelector ||
+        Element.prototype.oMatchesSelector ||
+        Element.prototype.webkitMatchesSelector ||
+        function(s) {
+            var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+                i = matches.length;
+            while (--i >= 0 && matches.item(i) !== this) {}
+            return i > -1;
+        };
+}
+
 export function find(node) {
-  return components[formatSelector(node)];
+  switch(node.nodeType) {
+    case NODE_TYPES.ELEMENT_NODE:
+      return findElement(node);
+    case NODE_TYPES.ATTRIBUTE_NODE:
+      return findAttrbute(node);
+    default:
+      return components[formatSelector(node)];
+  }
+}
+
+// TODO optomize lookup
+function findElement(node) {
+  var component;
+  Object.keys(components).every(function (key) {
+    if (node.matchesSelector(key)) {
+      component = components[key];
+      return false;
+    }
+    return true;
+  });
+  return component;
+}
+
+function findAttrbute(node) {
+ return components[formatSelector(node)];
 }
 
 export function disableOnRemove(element) {
