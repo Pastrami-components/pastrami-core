@@ -1,6 +1,7 @@
 import { NODE_TYPES } from '../constants';
 import { getElementUid } from '../util';
 import AttrsObserver from './attr-observer';
+import { destroyElementsBindings } from './attr-bindings';
 import ComponentFinder from './components-finder';
 import { inject } from '../injector';
 import {
@@ -163,10 +164,16 @@ export function compileElement(component, originalNode, parentingElement, rootNo
 
     // Tempalte
     if (component.template) {
-      node.appendChild(compileTemplate(originalNode, component));
-      var parent = originalNode.parentNode;
-      originalNode.parentNode.insertBefore(node, originalNode);
-      node = originalNode.previousSibling;
+      if (component.replace) {
+        node.appendChild(compileTemplate(originalNode, component));
+        var parent = originalNode.parentNode;
+        originalNode.parentNode.insertBefore(node, originalNode);
+        node = originalNode.previousSibling;
+        originalNode.remove();
+      } else {
+        originalNode.appendChild(compileTemplate(originalNode, component));
+        node = originalNode;
+      }
     } else {
       node.appendChild(originalNode.cloneNode());
       var child;
@@ -186,8 +193,9 @@ export function compileElement(component, originalNode, parentingElement, rootNo
       //     nodeCount--;
       //   }
       // }
+      originalNode.remove();
     }
-    originalNode.remove();
+
     node.uid = uid;
 
     var nodes = [].concat(node);
@@ -296,6 +304,7 @@ export function destroy(node) {
   // TODO dispatch destroy event
   var model = getElementModel(node);
   // if (model) { model.$$destroy(); }
+  destroyElementsBindings(node);
 }
 
 export function disable(node) {
@@ -315,10 +324,14 @@ function compileTemplate(node, component) {
   if (component.replace === true) {
     componentNode = templateElement;
     transfer(component.transfer, node, componentNode);
+    transpose(node, templateElement);
   } else {
-    componentNode.appendChild(templateElement);
+    componentNode = templateElement;
+    transpose(node, templateElement);
+    // node.appendChild(templateElement);
+    // componentNode = templateElement;
   }
-  transpose(node, templateElement);
+  // transpose(node, templateElement);
   return componentNode;
 }
 

@@ -1,12 +1,24 @@
 var observer;
 var elements = {};
+var observers = {};
 
 export default function CreateObserver(element) {
+  // console.log('CreateObserver', element)
+  if (observers[element.uid]) return observers[element.uid];
   var internal = {};
-  var observers = {};
+  var _observers = {};
+  var disabled = false;
   var self = Object.defineProperties({}, {
     observe: {
       value: observe,
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$disable': {
+      value: () => { disabled = true; },
+      enumerable: false, configurable: false, writable: false
+    },
+    '$$enable': {
+      value: () => { disabled = false; },
       enumerable: false, configurable: false, writable: false
     },
     '$$destroy': {
@@ -14,30 +26,33 @@ export default function CreateObserver(element) {
       enumerable: false, configurable: false, writable: false
     }
   });
-  observeElement(element, function (attrName) {
-    if (internal[attrName] !== element.getAttribute(attrName)) {
-      internal[name] = element.getAttribute(attrName);
-      (observers[name] || []).forEach(function (func) {
+  observeElement(element, function (name) {
+    if (disabled) return;
+    if (internal[name] !== element.getAttribute(name)) {
+      internal[name] = element.getAttribute(name);
+      (_observers[name] || []).forEach(function (func) {
         func(internal[name]);
       });
     }
   });
+  observers[element.uid] = self;
   return self;
 
   function observe(name, func) {
-    observers[name] = observers[name] || [];
-    observers[name].push(func);
+    _observers[name] = _observers[name] || [];
+    _observers[name].push(func);
     internal[name] = element.getAttribute(name);
     func(internal[name]);
     return function () {
-      observers[name] = observers[name].filter(function (item) {
+      _observers[name] = _observers[name].filter(function (item) {
         return item !== func;
       });
     }
   }
 
   function destroy() {
-    observers = {};
+    _observers = {};
+    delete observers[element.uid];
   }
 }
 

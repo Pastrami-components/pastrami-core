@@ -1,4 +1,5 @@
 import { getElementUid } from './util';
+import { getAttrBinding } from './component/attr-bindings';
 import { inject as injectCtrl } from './injector';
 import {
     Create as CreateModel,
@@ -38,6 +39,7 @@ export function compile(element, ctrl, inject) {
   // bind model to elemnt by uid
   // prep controller for injection
   if (!inject.model) { inject.model = CreateModel(); }
+  inject.getAttrBinding = getAttrBinding(element);
   bindModelToElement(element, inject.model);
   var compiled = false;
   var linker = injectCtrl(controller, inject);

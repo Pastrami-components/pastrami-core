@@ -5,6 +5,7 @@
   "author": "B-3PO",
   "main": "src/index.js",
   "scripts": {
+    "start": "gulp",
     "test": "gulp test"
   },
   "repository": {

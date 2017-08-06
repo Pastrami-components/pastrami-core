@@ -35,3 +35,39 @@ export function everyParent(node, func) {
     parent = parent.parentNode;
   }
 }
+
+
+const types = {
+  boolean: (value) => {
+    return (value === 'true' || value === true || value === 1);
+  }
+};
+export function parseDataType(value, type) {
+  if (!type) return autoConvertType(value);
+  if (!types[type]) {
+    throw Error('could not find type "'+type+'"');
+  }
+  return types[type](value);
+}
+
+function autoConvertType(value) {
+  switch (value) {
+    case 'true':
+    case true:
+      return true;
+      break;
+
+    case 'false':
+    case false:
+      return false;
+      break;
+
+    case !isNAN(value):
+      if (value.indexOf('.') > -1) return parseFloat(value);
+      else return parseInt(value);
+      break;
+
+    default:
+      return value;
+  }
+}

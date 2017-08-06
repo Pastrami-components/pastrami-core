@@ -32,6 +32,16 @@ export function getElementModel(element) {
   }
 }
 
+export function getNearestModel(el) {
+  var uid = el.uid;
+  if (!uid || !elements[uid]) {
+    everyParent(el, parent => {
+      uid = parent.uid;
+      return !uid || !elements[uid];
+    });
+  }
+  return elements[uid];
+}
 
 export function Create() {
   var uid = 0;

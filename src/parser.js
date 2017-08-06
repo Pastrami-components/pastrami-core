@@ -17,6 +17,7 @@ import {
 } from './controller';
 import { NODE_TYPES } from './constants';
 import { getElementModel } from './model';
+import { isBinding, createBinding } from './component/attr-bindings';
 
 var elements = [];
 
@@ -69,6 +70,10 @@ function parseElement(node, depth, parentingElement, rootNode) {
   var attrs = Array.prototype.slice.call(node.attributes || []);
   while (attr = attrs.pop()) {
     if (attr.name === 'controller') { continue; }
+    if (isBinding(attr)) {
+      var binding = createBinding(attr, node);
+      if (binding) return;
+    }
     register(attr, depth, bindAttributeExpression(attr, node, rootNode));
     if (!compileNode(attr, node)) { register(node, depth, bindExpression(attr, node, rootNode)); }
     if (compileAttribute(attr, node)) { continue; }
