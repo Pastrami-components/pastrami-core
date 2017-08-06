@@ -12,7 +12,7 @@ export default function Constructor(elements, elementUid, elementSelector) {
   function findParent(selector) {
     var callback = arguments[arguments.length-1];
 
-    nextTock(function () {
+    nextTock(() => {
       var node = elements[elementUid][elementSelector].element;
       var i = 0;
       var parent = node.parentNode;
@@ -32,7 +32,7 @@ export default function Constructor(elements, elementUid, elementSelector) {
   }
 
   function findChild(selector, callback) {
-    nextTock(function () {
+    nextTock(() => {
       var node = elements[elementUid][elementSelector].element;
       var child;
       var i = 0
@@ -50,7 +50,7 @@ export default function Constructor(elements, elementUid, elementSelector) {
   }
 
   function findSibling(selector, callback) {
-    nextTock(function () {
+    nextTock(() => {
       var node = elements[elementUid][elementSelector].element;
       var sibling = node.parentNode.firstChild;
       while (sibling) {

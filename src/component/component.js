@@ -24,8 +24,8 @@ var selectorTree = {};
 
 export function define(options) {
   validateOptions(options);
-  options.selector.split(',').forEach(function (sel) {
-    var lastObj = sel.trim().split(/(?=\.)|(?=#)|(?=\[)/).reduce(function (a, b) {
+  options.selector.split(',').forEach(sel => {
+    var lastObj = sel.trim().split(/(?=\.)|(?=#)|(?=\[)/).reduce((a, b) => {
       a[b] = a[b] || {};
       return a[b];
     }, selectorTree);
@@ -79,7 +79,7 @@ export function compileAttribute(attr, element, component, parentingElement, roo
   }
 
   elements[uid][selector] = {};
-  elements[uid][selector].compiler = function () {
+  elements[uid][selector].compiler = () => {
     if (elements[uid][selector].compiled) {
       getElementModel(element).$$enable();
       return;
@@ -146,7 +146,7 @@ export function compileElement(component, originalNode, parentingElement, rootNo
   }
 
   elements[uid][selector] = {};
-  elements[uid][selector].compiler = function () {
+  elements[uid][selector].compiler = () => {
     if (elements[uid][selector].compiled) {
       if (elements[uid][selector].model) { elements[uid][selector].model.$$enable(); }
       return;
@@ -199,7 +199,7 @@ export function compileElement(component, originalNode, parentingElement, rootNo
     node.uid = uid;
 
     var nodes = [].concat(node);
-    nodes.forEach(function (sub) {
+    nodes.forEach(sub => {
       // sub.classList.remove('cloak');
       // if selector is the node name then add it as a classname
       if (component.selector === sub.nodeName.toLowerCase()) {
@@ -249,11 +249,11 @@ if (!Element.prototype.matchesSelector) {
         Element.prototype.msMatchesSelector ||
         Element.prototype.oMatchesSelector ||
         Element.prototype.webkitMatchesSelector ||
-        function(s) {
-            var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-                i = matches.length;
-            while (--i >= 0 && matches.item(i) !== this) {}
-            return i > -1;
+        function (s) {
+          var matches = (this.document || this.ownerDocument).querySelectorAll(s);
+          var i = matches.length;
+          while (--i >= 0 && matches.item(i) !== this) {}
+          return i > -1;
         };
 }
 
@@ -271,7 +271,7 @@ export function find(node) {
 // TODO optomize lookup
 function findElement(node) {
   var component;
-  Object.keys(components).every(function (key) {
+  Object.keys(components).every(key => {
     if (node.matchesSelector(key)) {
       component = components[key];
       return false;
@@ -348,7 +348,7 @@ function transfer(options, node, template) {
 
   // transfer sttributes
   if (options === true || options.attributes === true) {
-    Array.prototype.slice.call(node.attributes).forEach(function (attr) {
+    Array.prototype.slice.call(node.attributes).forEach(attr => {
       if (attr.name === 'class') {
         template.setAttribute(attr.name, template.getAttribute(attr.name)+' '+attr.value);
       } else {
@@ -391,7 +391,7 @@ function transpose(node, templateElement) {
       templateTransposes.remove();
     }
   } else {
-    componentTransposes.forEach(function (item) {
+    componentTransposes.forEach(item => {
       var r = templateElement.querySelector('transpose, [name="'+item.getAttribute('name')+'"]');
       if (r) {
         while (child = node.firstChild) {

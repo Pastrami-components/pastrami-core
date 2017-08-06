@@ -20,7 +20,7 @@ export function createBinding(attr, element) {
     });
   }
 
-  var setValue = (value) => {
+  var setValue = value => {
     if (!attrObserver) return;
     element.setAttribute(bindToProperty, value);
   };
@@ -34,7 +34,7 @@ export function createBinding(attr, element) {
       enumerable: false, configurable: false, writable: false
     },
     '$$updateModel': {
-      value: (value) => { model[attrValue] = value; },
+      value: value => model[attrValue] = value,
       enumerable: false, configurable: false, writable: false
     },
     '$$destroy': {
@@ -59,7 +59,7 @@ export function isBinding(attr) {
 }
 
 export function getAttrBinding(element) {
-  return (attrName) => {
+  return attrName => {
     if (elements[element.uid] && elements[element.uid][attrName]) {
       return elements[element.uid][attrName];
     }
@@ -68,7 +68,7 @@ export function getAttrBinding(element) {
 
 export function destroyElementsBindings(element) {
   if (!elements[element.uid]) return;
-  Object.keys(elements[element.uid]).forEach(function (key) {
+  Object.keys(elements[element.uid]).forEach(key => {
     elements[element.uid][key].$$destroy();
   });
   elements[element.uid] = undefined;

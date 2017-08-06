@@ -43,7 +43,7 @@ export function compile(element, ctrl, inject) {
   bindModelToElement(element, inject.model);
   var compiled = false;
   var linker = injectCtrl(controller, inject);
-  var createController = function () {
+  var createController = () => {
     if (compiled) { return; } // prevent from running more than once
     var newCtrl = new linker();
     Object.defineProperty(newCtrl, '$model', {

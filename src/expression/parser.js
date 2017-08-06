@@ -12,7 +12,7 @@ export function compileExpression(str) {
 }
 
 function resolver(compiled) {
-  return function (context) {
+  return context => {
     return resolveToString(compiled, context)
   };
 }
@@ -20,7 +20,7 @@ function resolver(compiled) {
 // dummy function that will for strings that are not expression.
 // this will allow the pipeline to stay the same
 function returnStr(str) {
-  return function () {
+  return () => {
     return str;
   };
 }
@@ -51,13 +51,13 @@ export function compileNode(node, bindingNode, rootNode) {
   if (elements[node.uid]) { return elements[node.uid]; }
   var destroyer;
   var compiledText = tsCompile(node.textContent);
-  var createObserver = function () {
+  var createObserver = () => {
     rootNode = rootNode || document.body;
     if (!rootNode.contains(node)) { return; }
     if (destroyer) { return; } // prevent from running ore than once
     var model = getElementModel(bindingNode || node.parentNode);
     if (!model) { return; }
-    destroyer = model.$observe(function () {
+    destroyer = model.$observe(() => {
       if (node.$$doNotParse) { return; }
       // kill observer if node no longer exists
       if (!node) {
@@ -88,13 +88,13 @@ export function compileAttribute(attr, bindingNode, rootNode) {
   if (elements[attr.uid]) { return elements[attr.uid]; }
   var destroyer;
   var compiledText = tsCompile(attr.value);
-  var createObserver = function () {
+  var createObserver = () => {
     rootNode = rootNode || document.body;
     if (!rootNode.contains(bindingNode) && bindingNode.hasAttribute(attr.nodeName)) { return; }
     if (destroyer) { return; } // prevent from running ore than once
     var model = getElementModel(bindingNode);
     if (!model) { return; }
-    destroyer = model.$observe(function () {
+    destroyer = model.$observe(() => {
       if (attr.$$doNotParse || bindingNode.$$doNotParse) { return; }
       // kill observer if node no longer exists
       if (!attr) {

@@ -18,7 +18,7 @@ export function get(id) {
 export function waitFor(id, callback) {
   var killed = false;
   // TODO register with mutation and wait/check for add
-  setTimeout(function () {
+  setTimeout(() => {
     if (!killed) { callback(components[id]); }
   }, 100);
 

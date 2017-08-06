@@ -54,16 +54,12 @@ export function clone(src, checkForCircular) {
 
 
 export function extend(dest, ...srcs) {
-  srcs.forEach(function (src) {
-    baseMerge(dest, src, false);
-  });
+  srcs.forEach(src => baseMerge(dest, src, false));
   return dest;
 }
 
 export function merge(dest, ...srcs) {
-  srcs.forEach(function (src) {
-    baseMerge(dest, src, true);
-  });
+  srcs.forEach(src => baseMerge(dest, src, true));
   return dest;
 }
 

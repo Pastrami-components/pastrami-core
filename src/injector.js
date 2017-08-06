@@ -43,7 +43,7 @@ export function inject(func, inject) {
   // return functional that will applay an arrya or args from the inject obj, based on the strings int deps arr
   return function () {
     var arr = Array.prototype.slice.call(arguments, 0);
-    deps.forEach(function (item, pos) {
+    deps.forEach((item, pos) => {
       args.push(inject[item] || get(item));
     });
     func.apply(this, args);

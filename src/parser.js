@@ -116,7 +116,7 @@ function register(element, depth, func) {
 }
 
 function compile() {
-  elements.sort(function (a, b) {
+  elements.sort((a, b) => {
     return a.depth < b.depth ? -1 : a.depth > b.depth ? 1 :
            a.priority > b.priority ? -1 : a.priority < b.priority ? 1 : 0;
   }).forEach(function (item) {
@@ -130,10 +130,10 @@ function compile() {
 var observer;
 function observe() {
   if (!observer) {
-    observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
+    observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
         if (mutation.removedNodes.length) {
-          Array.prototype.slice.call(mutation.removedNodes).forEach(function (element) {
+          Array.prototype.slice.call(mutation.removedNodes).forEach(element => {
             if (element.uid && !element.originalNode && !element.mcplaceholder) {
               destroy(element);
             }
@@ -141,7 +141,7 @@ function observe() {
         }
 
         if (mutation.addedNodes.length) {
-          Array.prototype.slice.call(mutation.addedNodes).forEach(function (element) {
+          Array.prototype.slice.call(mutation.addedNodes).forEach(element => {
             parse(element);
           });
         }

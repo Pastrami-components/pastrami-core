@@ -14,11 +14,11 @@ export default function CreateObserver(element) {
       enumerable: false, configurable: false, writable: false
     },
     '$$disable': {
-      value: () => { disabled = true; },
+      value: () => disabled = true,
       enumerable: false, configurable: false, writable: false
     },
     '$$enable': {
-      value: () => { disabled = false; },
+      value: () => disabled = false,
       enumerable: false, configurable: false, writable: false
     },
     '$$destroy': {
@@ -26,7 +26,7 @@ export default function CreateObserver(element) {
       enumerable: false, configurable: false, writable: false
     }
   });
-  observeElement(element, function (name) {
+  observeElement(element, name => {
     if (disabled) return;
     if (internal[name] !== element.getAttribute(name)) {
       internal[name] = element.getAttribute(name);
@@ -43,7 +43,7 @@ export default function CreateObserver(element) {
     _observers[name].push(func);
     internal[name] = element.getAttribute(name);
     func(internal[name]);
-    return function () {
+    return () => {
       _observers[name] = _observers[name].filter(function (item) {
         return item !== func;
       });

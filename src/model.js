@@ -6,7 +6,7 @@ var elements = {};
 // assign a model to an element
 export function bindModelToElement(element, model) {
   // find parent model
-  everyParent(element, function (parent) {
+  everyParent(element, parent => {
     if (elements[parent.uid]) {
       if (!('$parent' in model)) {
         Object.defineProperty(model, '$parent', {
@@ -169,26 +169,26 @@ export function Parasite(config) {
       if (property === '$$global') {
         parent = core.$parent;
         while (parent) {
-          parent.$$observers[property] = (parent.$$observers[property] || []).filter(function (item) {
+          parent.$$observers[property] = (parent.$$observers[property] || []).filter(item => {
             return item !== fn;
           });
           parent = parent.$parent;
         }
         fn();
       }
-      config.observers[property] = config.observers[property].filter(function (item) {
+      config.observers[property] = config.observers[property].filter(item => {
         return item !== fn;
       });
     };
   }
 
   function trigger(property, value) {
-    config.siblings.forEach(function (sibling) {
+    config.siblings.forEach(sibling => {
       if (sibling.$isDisabled() && sibling.$$forceEnable !== true) { return; }
-      (sibling.$$observers[property] || []).forEach(function (fn) {
+      (sibling.$$observers[property] || []).forEach(fn => {
         fn(value);
       });
-      (sibling.$$observers['$$global'] || []).forEach(function (fn) {
+      (sibling.$$observers['$$global'] || []).forEach(fn => {
         fn();
       });
     });
@@ -198,7 +198,7 @@ export function Parasite(config) {
     var parent = core;
     var obj = {};
     while (parent) {
-      Object.keys(parent.$$self).forEach(function (key) {
+      Object.keys(parent.$$self).forEach(key => {
         if (!obj[key]) { obj[key] = parent.$$self[key]; }
       });
       parent = parent.$parent;

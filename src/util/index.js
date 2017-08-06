@@ -20,7 +20,7 @@ export function debounce(func, wait) {
     var context = this;
     var args = arguments;
     clearTimeout(timer);
-    timer = setTimeout(function () {
+    timer = setTimeout(() => {
       timer = undefined;
       func.apply(context, args);
     }, wait || 10);
