@@ -5,13 +5,6 @@ export const config = {
 };
 
 export function get(url) {
-  console.log('this', this.method);
-  this._method = 'GET';
-  this._url = url;
-  return this;
-}
-
-export function get(url) {
   this._method = 'GET';
   this._url = url;
   return this;

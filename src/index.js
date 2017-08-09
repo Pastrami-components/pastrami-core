@@ -4,6 +4,7 @@ import * as component from './component';
 import * as util from './util';
 import * as constants from './constants';
 import * as request from './request';
+import * as events from './events';
 
 export { bindModelToElement, Create as CreateModel } from './model';
 export { compileExpression } from './expression';
@@ -12,6 +13,7 @@ export { add as addInjectable } from './injector';
 export {
   constants,
   component,
+  events,
   parse,
   doNotParse,
   allowParse,
