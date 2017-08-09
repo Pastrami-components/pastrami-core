@@ -21,7 +21,9 @@ export function off(name, handler, scope) {
 }
 
 export function emit(name, value) {
-  (listners[name] || []).forEach(fn => fn(value))
+  Object.keys(listners).forEach(function (scopeKey) {
+    (istners[scopeKey][name] || []).forEach(fn => fn(value));
+  });
 }
 
 export function createScope(scope) {
