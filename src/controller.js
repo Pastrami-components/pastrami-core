@@ -28,6 +28,14 @@ export function bind(element, ctrl, inject) {
   return elements[uid];
 }
 
+export function unbind(element) {
+  var uid = getElementUid(element);
+  if (elements[uid] && elements[uid].$model) elements[uid].$model.$$destroy();
+  elements[uid] = undefined;
+  // TODO remove/destroy attr observers
+  // TODO remove.destroy element listeners
+}
+
 export function compile(element, ctrl, inject) {
   if (!element.uid) { return; }
   if (elements[element.uid]) { return elements[element.uid]; }

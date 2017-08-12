@@ -1,12 +1,23 @@
 var scopeUid = 1;
 var listners = { _global: {} };
+var eventHistory = {};
 
 export function on(name, handler, scope) {
+  var firstTrigger = false;
   scope = scope || '_global';
   if (!listners[scope]) listners[scope] = {};
-  if (!listners[scope][name]) listners[name] = [];
-  listners[scope][name].push(fn);
-  return () => off(name, handler, scope);
+  if (!listners[scope][name]) listners[scope][name] = [];
+  listners[scope][name].push(handler);
+  var offer = () => off(name, handler, scope);
+
+  // allow a listenre to handle previous events
+  offer.handlePrevious = () => {
+    if (firstTrigger) return;
+    firstTrigger = true;
+    eventHistory[name].forEach(handler);
+    return offer;
+  };
+  return offer;
 }
 
 export function off(name, handler, scope) {
@@ -21,8 +32,14 @@ export function off(name, handler, scope) {
 }
 
 export function emit(name, value) {
+  // store events so listernes can handle previous items
+  if (!eventHistory[name]) eventHistory[name] = [];
+  eventHistory[name].push(value);
+
   Object.keys(listners).forEach(function (scopeKey) {
-    (istners[scopeKey][name] || []).forEach(fn => fn(value));
+    if (listners[scopeKey] && listners[scopeKey][name]) {
+      listners[scopeKey][name].forEach(fn => fn(value));
+    }
   });
 }
 
@@ -32,7 +49,7 @@ export function createScope(scope) {
     on: (name, value) => on(name, value, scope),
     off: (name, value) => off(name, value, scope),
     emit
-  }
+  };
 
   return {
     scopedEvents,

@@ -38,6 +38,7 @@ export function inject(func, inject) {
   } else {
     // parse function as string into deps arr
     deps = func.toString().match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1].replace(/ /g, '').split(',');
+    if (deps.length === 1 && deps[0] === '') deps = [];
   }
 
   // return functional that will applay an arrya or args from the inject obj, based on the strings int deps arr

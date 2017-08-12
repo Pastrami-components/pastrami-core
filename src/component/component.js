@@ -320,7 +320,7 @@ export function disable(node) {
 
 function compileTemplate(node, component) {
   var componentNode;
-  var templateElement = createFromMarkup(component.template);
+  var templateElement = document.createFromMarkup(component.template);
   if (component.replace === true) {
     componentNode = templateElement;
     transfer(component.transfer, node, componentNode);
@@ -430,12 +430,6 @@ function validateOptions(options) {
   if (options.template && (typeof options.template !== 'string' || options.template === '')) {
     throw Error('`options.template must be a valid string`');
   }
-}
-
-function createFromMarkup(markup) {
-  var parser = document.createElement('div');
-  parser.innerHTML = markup;
-  return parser.firstChild;
 }
 
 // export function clone(node) {

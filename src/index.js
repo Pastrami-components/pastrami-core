@@ -5,10 +5,11 @@ import * as util from './util';
 import * as constants from './constants';
 import * as request from './request';
 import * as events from './events';
+import '@battr/battr-router';
 
 export { bindModelToElement, Create as CreateModel } from './model';
 export { compileExpression } from './expression';
-export { add as controller, findController } from './controller';
+export { add as controller, findController, bind as bindController, unbind as unbindController } from './controller';
 export { add as addInjectable } from './injector';
 export {
   constants,
