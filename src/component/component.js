@@ -80,6 +80,11 @@ export function compileAttribute(attr, element, component, parentingElement, roo
 
   elements[uid][selector] = {};
   elements[uid][selector].compiler = () => {
+    // if the element that the attr is on is compiled then the element has been replaced. make sure we are using the correct one
+    if (elements[element.uid] && elements[element.uid][formatSelector(element)] && elements[element.uid][formatSelector(element)].element !== element) {
+      element = elements[element.uid][formatSelector(element)].element;
+    }
+
     if (elements[uid][selector].compiled) {
       getElementModel(element).$$enable();
       return;
@@ -272,7 +277,8 @@ export function find(node) {
 function findElement(node) {
   var component;
   Object.keys(components).every(key => {
-    if (node.matchesSelector(key)) {
+    var firstChar = key.charAt(0);
+    if (firstChar !== '.' && firstChar !== '[' && node.matchesSelector(key)) {
       component = components[key];
       return false;
     }
